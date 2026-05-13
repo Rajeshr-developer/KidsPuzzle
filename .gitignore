@@ -61,3 +61,9 @@ buck-out/
 
 #android
 android
+
+# Web build output (deployed to gh-pages, not committed to main)
+dist/
+
+# Claude Code local session files
+.claude/
