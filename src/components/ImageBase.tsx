@@ -1,22 +1,38 @@
-import React, { useEffect } from "react"
-import { Dimensions, Image, ImageBackground, View } from "react-native"
-import PuzzlePieces from "./PuzzlePieces"
+import React, { useCallback, useEffect, useState } from 'react';
+import { View } from 'react-native';
+import { HomePage } from './HomePage';
+import { Loader } from './Loader';
+import PuzzlePieces from './PuzzlePieces';
 
-export default function ImageBase() {
+type GamePhase = 'Loading' | 'Home' | 'Game';
 
-    useEffect(() => {
-        console.log('..Side Effects..')
-    })
+const LOADER_MS = 2000;
 
-    return <View>
-        <ImageBackground
-            style={{
-                width: '100%',
-                height: '100%',
-                overflow: "hidden",
-                borderWidth: 3,
-                borderColor: "red"
-            }}
-            source={require('../../assets/bear_sprites/Shadow.png')}
-        ><PuzzlePieces/></ImageBackground></View>
+export default function ImageBase(): JSX.Element {
+  const [gameState, setGameState] = useState<GamePhase>('Loading');
+  const [puzzleSession, setPuzzleSession] = useState(0);
+
+  useEffect(() => {
+    const t = setTimeout(() => setGameState('Home'), LOADER_MS);
+    return () => clearTimeout(t);
+  }, []);
+
+  const startGame = useCallback(() => {
+    setPuzzleSession((n) => n + 1);
+    setGameState('Game');
+  }, []);
+
+  const backToMenu = useCallback(() => {
+    setGameState('Home');
+  }, []);
+
+  return (
+    <View style={{ flex: 1, width: '100%' }}>
+      {gameState === 'Loading' ? <Loader /> : null}
+      {gameState === 'Home' ? <HomePage onStart={startGame} /> : null}
+      {gameState === 'Game' ? (
+        <PuzzlePieces key={puzzleSession} onBackToMenu={backToMenu} />
+      ) : null}
+    </View>
+  );
 }
